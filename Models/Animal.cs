@@ -10,5 +10,7 @@ public class Animal
     public AnimalSex Sex { get; set; }
     public string Description { get; set; } = string.Empty;
     public DateTime EntryDate { get; set; }
-    public AnimalStatus Status { get; set; }
+    public AnimalStatus Status { get; set; } = AnimalStatus.Available;
+
+    public ICollection<AdoptionRequest> AdoptionRequests { get; set; } = new List<AdoptionRequest>();
 }
