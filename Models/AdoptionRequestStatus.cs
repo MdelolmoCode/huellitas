@@ -1,9 +1,18 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Huellitas.Models;
 
 public enum AdoptionRequestStatus
 {
-    Pending, // pendiente
-    Approved, // aprobado
-    Rejected, // rechazado
-    Cancelled // cancelado
+    [Display(Name = "Pendiente")]
+    Pending,
+
+    [Display(Name = "Aprobada")]
+    Approved,
+
+    [Display(Name = "Rechazada")]
+    Rejected,
+
+    [Display(Name = "Cancelada")]
+    Cancelled
 }
