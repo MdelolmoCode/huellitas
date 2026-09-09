@@ -36,5 +36,14 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}")
     .WithStaticAssets();
 
+var appDataDirectory =
+    Path.Combine(app.Environment.ContentRootPath, "App_Data");
+
+Directory.CreateDirectory(appDataDirectory);
+
+using (var scope = app.Services.CreateScope())
+{
+    await DbInitializer.InitializeAsync(scope.ServiceProvider);
+}
 
 app.Run();
