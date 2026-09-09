@@ -1,4 +1,5 @@
 using Huellitas.Data;
+using Huellitas.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,6 +14,8 @@ var connectionString =
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlite(connectionString));
+
+builder.Services.AddScoped<AnimalService>();
 
 var app = builder.Build();
 
