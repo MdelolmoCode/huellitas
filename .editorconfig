@@ -1,0 +1,42 @@
+﻿root = true
+
+[*]
+end_of_line = crlf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 4
+
+[*.{json,csproj,props,targets}]
+indent_size = 2
+
+[*.sln]
+indent_style = tab
+
+[*.cshtml]
+indent_size = 4
+
+[*.cs]
+charset = utf-8
+
+csharp_new_line_before_open_brace = all
+csharp_space_after_keywords_in_control_flow_statements = true
+csharp_new_line_before_members_in_chained_calls = true
+csharp_style_namespace_declarations = file_scoped:suggestion
+
+dotnet_style_qualification_for_field = false:suggestion
+dotnet_style_qualification_for_property = false:suggestion
+dotnet_style_qualification_for_method = false:suggestion
+dotnet_style_qualification_for_event = false:suggestion
+
+[Data/Migrations/*.cs]
+charset = utf-8-bom
+generated_code = true
+
+[wwwroot/lib/**]
+charset = unset
+end_of_line = unset
+insert_final_newline = unset
+trim_trailing_whitespace = unset
+indent_style = unset
+indent_size = unset
