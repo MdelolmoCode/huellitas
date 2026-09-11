@@ -38,6 +38,25 @@ public class AnimalsController : Controller
         return View(ToDetails(animal));
     }
 
+    [HttpGet]
+    public IActionResult Create()
+    {
+        return View(new AnimalFormViewModel());
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Edit(int id)
+    {
+        var animal = await animals.GetByIdAsync(id);
+
+        if (animal is null)
+        {
+            return NotFound();
+        }
+
+        return View(AnimalFormViewModel.FromAnimal(animal));
+    }
+
     private static AnimalListItemViewModel ToListItem(Animal animal)
     {
         return new AnimalListItemViewModel
