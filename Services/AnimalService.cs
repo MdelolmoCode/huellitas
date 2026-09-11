@@ -22,6 +22,16 @@ public sealed class AnimalService
             .ToListAsync();
     }
 
+    public async Task<Animal> CreateAsync(Animal animal)
+    {
+        animal.Status = AnimalStatus.Available;
+
+        context.Animals.Add(animal);
+        await context.SaveChangesAsync();
+
+        return animal;
+    }
+
     public async Task<Animal?> GetByIdAsync(int id)
     {
         return await context.Animals

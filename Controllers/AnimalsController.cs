@@ -44,6 +44,19 @@ public class AnimalsController : Controller
         return View(new AnimalFormViewModel());
     }
 
+    [HttpPost]
+    public async Task<IActionResult> Create(AnimalFormViewModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            return View(model);
+        }
+
+        var created = await animals.CreateAsync(model.ToAnimal());
+
+        return RedirectToAction(nameof(Details), new { id = created.Id });
+    }
+
     [HttpGet]
     public async Task<IActionResult> Edit(int id)
     {
