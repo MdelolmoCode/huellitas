@@ -70,6 +70,31 @@ public class AnimalsController : Controller
         return View(AnimalFormViewModel.FromAnimal(animal));
     }
 
+    [HttpPost]
+    public async Task<IActionResult> Edit(
+        [FromRoute] int id,
+        AnimalFormViewModel model)
+    {
+        if (id != model.Id)
+        {
+            return BadRequest();
+        }
+
+        if (!ModelState.IsValid)
+        {
+            return View(model);
+        }
+
+        var updated = await animals.UpdateAsync(id, model.ToAnimal());
+
+        if (!updated)
+        {
+            return NotFound();
+        }
+
+        return RedirectToAction(nameof(Details), new { id });
+    }
+
     private static AnimalListItemViewModel ToListItem(Animal animal)
     {
         return new AnimalListItemViewModel

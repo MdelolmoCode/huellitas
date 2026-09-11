@@ -32,6 +32,29 @@ public sealed class AnimalService
         return animal;
     }
 
+    public async Task<bool> UpdateAsync(int id, Animal source)
+    {
+        var animal = await context.Animals
+            .SingleOrDefaultAsync(animal => animal.Id == id);
+
+        if (animal is null)
+        {
+            return false;
+        }
+
+        animal.Name = source.Name;
+        animal.AnimalType = source.AnimalType;
+        animal.Breed = source.Breed;
+        animal.ApproximateAge = source.ApproximateAge;
+        animal.Sex = source.Sex;
+        animal.Description = source.Description;
+        animal.EntryDate = source.EntryDate;
+
+        await context.SaveChangesAsync();
+
+        return true;
+    }
+
     public async Task<Animal?> GetByIdAsync(int id)
     {
         return await context.Animals
