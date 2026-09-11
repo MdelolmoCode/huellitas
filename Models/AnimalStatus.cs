@@ -1,7 +1,12 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Huellitas.Models;
 
 public enum AnimalStatus
 {
-    Available, // disponible
-    Adopted // adoptado
+    [Display(Name = "Disponible")]
+    Available,
+
+    [Display(Name = "Adoptado")]
+    Adopted
 }

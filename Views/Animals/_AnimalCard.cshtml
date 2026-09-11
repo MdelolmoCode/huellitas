@@ -1,0 +1,25 @@
+@model AnimalListItemViewModel
+
+<div class="col">
+    <div class="card h-100">
+        <div class="animal-image">Sin imagen</div>
+        <div class="card-body">
+            <h5 class="card-title">@Model.Name</h5>
+            <p class="card-text text-muted mb-2">@Html.DisplayFor(model => model.AnimalType) · @Html.DisplayFor(model => model.AnimalSex)</p>
+            @if (Model.Breed is not null)
+            {
+                <p class="card-text mb-2">@Model.Breed</p>
+            }
+            <p class="card-text mb-3">@Model.ApproximateAge @(Model.ApproximateAge == 1 ? "año" : "años")</p>
+            <span class="badge @(Model.AnimalStatus == AnimalStatus.Available ? "text-bg-success" : "text-bg-secondary")">
+                @Html.DisplayFor(model => model.AnimalStatus)
+            </span>
+        </div>
+        <div class="card-footer bg-transparent border-0">
+            <a class="btn btn-primary w-100"
+               asp-controller="Animals" asp-action="Details" asp-route-id="@Model.Id">
+                Ver ficha
+            </a>
+        </div>
+    </div>
+</div>

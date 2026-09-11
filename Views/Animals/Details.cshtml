@@ -1,0 +1,36 @@
+@using System.Globalization
+@model AnimalDetailsViewModel
+@{
+    ViewData["Title"] = Model.Name;
+}
+
+<h1>@Model.Name</h1>
+<span class="badge mb-4 @(Model.AnimalStatus == AnimalStatus.Available ? "text-bg-success" : "text-bg-secondary")">
+    @Html.DisplayFor(model => model.AnimalStatus)
+</span>
+
+<div class="row">
+    <div class="col-md-5 mb-3">
+        <div class="animal-image">Sin imagen</div>
+    </div>
+    <div class="col-md-7">
+        <dl class="row">
+            <dt class="col-sm-4">Tipo</dt>
+            <dd class="col-sm-8">@Html.DisplayFor(model => model.AnimalType)</dd>
+            <dt class="col-sm-4">Raza</dt>
+            <dd class="col-sm-8">@(Model.Breed ?? "Sin determinar")</dd>
+            <dt class="col-sm-4">Sexo</dt>
+            <dd class="col-sm-8">@Html.DisplayFor(model => model.AnimalSex)</dd>
+            <dt class="col-sm-4">Edad aproximada</dt>
+            <dd class="col-sm-8">@Model.ApproximateAge @(Model.ApproximateAge == 1 ? "año" : "años")</dd>
+            <dt class="col-sm-4">Fecha de entrada</dt>
+            <dd class="col-sm-8">@Model.EntryDate.ToString("d 'de' MMMM 'de' yyyy", CultureInfo.GetCultureInfo("es-ES"))</dd>
+        </dl>
+
+        <p>@Model.Description</p>
+
+        <a class="btn btn-outline-secondary" asp-controller="Animals" asp-action="Index">
+            Volver a los animales
+        </a>
+    </div>
+</div>

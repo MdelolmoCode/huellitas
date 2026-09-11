@@ -29,3 +29,12 @@ body {
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
   text-align: start;
 }
+
+.animal-image {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 160px;
+    background-color: whitesmoke;
+    color: gray;
+}
