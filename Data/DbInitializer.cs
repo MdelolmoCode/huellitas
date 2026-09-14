@@ -1,4 +1,5 @@
 using Huellitas.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace Huellitas.Data;
@@ -12,15 +13,74 @@ public static class DbInitializer
 
         await context.Database.MigrateAsync();
 
+        var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+
+        await EnsureRoleAsync(roleManager, RoleNames.User);
+        await EnsureRoleAsync(roleManager, RoleNames.Admin);
+
         if (!configuration.GetValue("SeedData:Enabled", false))
         {
             return;
         }
 
+        var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
+
+        await EnsureUserAsync(
+            userManager, "admin", "admin@huellitas.local",
+            "Administración de Huellitas", "Admin123!", RoleNames.Admin
+        );
+
+        await EnsureUserAsync(
+            userManager, "user", "user@huellitas.local",
+            "Usuario de demostración", "User123!", RoleNames.User
+        );
+
         if (!await context.Animals.AnyAsync())
         {
             context.Animals.AddRange(BuildDemoAnimals());
             await context.SaveChangesAsync();
+        }
+    }
+
+    private static async Task EnsureRoleAsync(
+        RoleManager<IdentityRole> roleManager,
+        string role
+    )
+    {
+        if (!await roleManager.RoleExistsAsync(role))
+        {
+            await roleManager.CreateAsync(new IdentityRole(role));
+        }
+    }
+
+    private static async Task EnsureUserAsync(
+        UserManager<ApplicationUser> userManager,
+        string userName,
+        string email,
+        string displayName,
+        string password,
+        string role
+    )
+    {
+        if (await userManager.FindByNameAsync(userName) is not null)
+        {
+            return;
+        }
+
+        var user = new ApplicationUser
+        {
+            UserName = userName,
+            Email = email,
+            DisplayName = displayName,
+            CreatedAt = DateTime.UtcNow,
+            IsActive = true
+        };
+
+        var result = await userManager.CreateAsync(user, password);
+
+        if (result.Succeeded)
+        {
+            await userManager.AddToRoleAsync(user, role);
         }
     }
 
