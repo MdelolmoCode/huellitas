@@ -1,4 +1,5 @@
 using Huellitas.Models;
+using Microsoft.AspNetCore.Authorization;
 using Huellitas.Services;
 using Huellitas.ViewModels.Animals;
 using Microsoft.AspNetCore.Mvc;
@@ -40,12 +41,14 @@ public class AnimalsController : Controller
         return View(model);
     }
 
+    [Authorize(Roles = RoleNames.Admin)]
     [HttpGet]
     public IActionResult Create()
     {
         return View(new AnimalFormViewModel());
     }
 
+    [Authorize(Roles = RoleNames.Admin)]
     [HttpPost]
     public async Task<IActionResult> Create(AnimalFormViewModel model)
     {
@@ -59,6 +62,7 @@ public class AnimalsController : Controller
         return RedirectToAction(nameof(Details), new { id = created.Id });
     }
 
+    [Authorize(Roles = RoleNames.Admin)]
     [HttpGet]
     public async Task<IActionResult> Edit(int id)
     {
@@ -72,6 +76,7 @@ public class AnimalsController : Controller
         return View(AnimalFormViewModel.FromAnimal(animal));
     }
 
+    [Authorize(Roles = RoleNames.Admin)]
     [HttpPost]
     public async Task<IActionResult> Edit(
         [FromRoute] int id,
@@ -97,6 +102,7 @@ public class AnimalsController : Controller
         return RedirectToAction(nameof(Details), new { id });
     }
 
+    [Authorize(Roles = RoleNames.Admin)]
     [HttpGet]
     public async Task<IActionResult> Delete(int id)
     {
@@ -110,6 +116,7 @@ public class AnimalsController : Controller
         return View(model);
     }
 
+    [Authorize(Roles = RoleNames.Admin)]
     [HttpPost, ActionName("Delete")]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {

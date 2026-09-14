@@ -32,5 +32,11 @@
         <a class="btn btn-outline-secondary" asp-controller="Animals" asp-action="Index">
             Volver a los animales
         </a>
+
+        @if (User.IsInRole(RoleNames.Admin))
+        {
+            <a class="btn btn-primary" asp-action="Edit" asp-route-id="@Model.Id">Editar</a>
+            <a class="btn btn-danger" asp-action="Delete" asp-route-id="@Model.Id">Borrar</a>
+        }
     </div>
 </div>
