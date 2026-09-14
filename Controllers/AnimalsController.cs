@@ -95,6 +95,41 @@ public class AnimalsController : Controller
         return RedirectToAction(nameof(Details), new { id });
     }
 
+    [HttpGet]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var animal = await animals.GetByIdAsync(id);
+
+        if (animal is null)
+        {
+            return NotFound();
+        }
+
+        return View(ToDetails(animal));
+    }
+
+    [HttpPost, ActionName("Delete")]
+    public async Task<IActionResult> DeleteConfirmed(int id)
+    {
+        var result = await animals.DeleteAsync(id);
+
+        if (result.Status == OperationStatus.NotFound)
+        {
+            return NotFound();
+        }
+
+        if (result.Status == OperationStatus.Conflict)
+        {
+            TempData["Error"] = result.Error;
+
+            return RedirectToAction(nameof(Details), new { id });
+        }
+
+        TempData["Success"] = "El animal se ha borrado.";
+
+        return RedirectToAction(nameof(Index));
+    }
+
     private static AnimalListItemViewModel ToListItem(Animal animal)
     {
         return new AnimalListItemViewModel

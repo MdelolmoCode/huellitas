@@ -55,6 +55,32 @@ public sealed class AnimalService
         return true;
     }
 
+    public async Task<OperationResult> DeleteAsync(int id)
+    {
+        var animal = await context.Animals
+            .SingleOrDefaultAsync(animal => animal.Id == id);
+
+        if (animal is null)
+        {
+            return OperationResult.NotFound();
+        }
+
+        var hasRequests = await context.AdoptionRequests
+            .AnyAsync(request => request.AnimalId == id);
+
+        if (hasRequests)
+        {
+            return OperationResult.Conflict(
+                "Este animal no se puede borrar porque tiene solicitudes de adopción."
+            );
+        }
+
+        context.Animals.Remove(animal);
+        await context.SaveChangesAsync();
+
+        return OperationResult.Success();
+    }
+
     public async Task<Animal?> GetByIdAsync(int id)
     {
         return await context.Animals
