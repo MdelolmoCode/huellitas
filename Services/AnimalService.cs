@@ -13,10 +13,40 @@ public sealed class AnimalService
         this.context = context;
     }
 
-    public async Task<List<Animal>> GetAllAsync()
+    public async Task<List<Animal>> SearchAsync(
+        string? search,
+        AnimalType? animalType,
+        AnimalSex? sex,
+        AnimalStatus? status
+    )
     {
-        return await context.Animals
-            .AsNoTracking()
+        var query = context.Animals.AsNoTracking();
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var text = search.Trim();
+
+            query = query.Where(animal =>
+                EF.Functions.Like(animal.Name, $"%{text}%") ||
+                (animal.Breed != null && EF.Functions.Like(animal.Breed, $"%{text}%")));
+        }
+
+        if (animalType is not null)
+        {
+            query = query.Where(animal => animal.AnimalType == animalType);
+        }
+
+        if (sex is not null)
+        {
+            query = query.Where(animal => animal.Sex == sex);
+        }
+
+        if (status is AnimalStatus statusValue)
+        {
+            query = query.Where(animal => animal.Status == statusValue);
+        }
+
+        return await query
             .OrderBy(animal => animal.Name)
             .ThenBy(animal => animal.Id)
             .ToListAsync();

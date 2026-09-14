@@ -5,9 +5,34 @@
 
 <h1 class="mb-4">Animales</h1>
 
+<form method="get" class="row g-2 mb-4">
+    <div class="col-md-6">
+        <input asp-for="Search" class="form-control" placeholder="Nombre o raza" />
+    </div>
+    <div class="col-md-2">
+        <select asp-for="AnimalType" asp-items="Html.GetEnumSelectList<AnimalType>()" class="form-select">
+            <option value="">Todos los tipos</option>
+        </select>
+    </div>
+    <div class="col-md-2">
+        <select asp-for="Sex" asp-items="Html.GetEnumSelectList<AnimalSex>()" class="form-select">
+            <option value="">Todos los sexos</option>
+        </select>
+    </div>
+    <div class="col-md-2">
+        <select asp-for="Status" asp-items="Html.GetEnumSelectList<AnimalStatus>()" class="form-select">
+            <option value="">Todos los estados</option>
+        </select>
+    </div>
+    <div class="col-12">
+        <button type="submit" class="btn btn-primary">Buscar</button>
+        <a class="btn btn-outline-secondary" asp-action="Index">Limpiar</a>
+    </div>
+</form>
+
 @if (Model.Items.Count == 0)
 {
-    <p class="text-muted">Ahora mismo no hay ningún animal disponible.</p>
+    <p class="text-muted">Ningún animal coincide con los filtros.</p>
 }
 else
 {

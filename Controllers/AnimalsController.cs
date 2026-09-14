@@ -14,13 +14,22 @@ public class AnimalsController : Controller
         this.animals = animals;
     }
 
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index(
+        string? search,
+        AnimalType? animalType,
+        AnimalSex? sex,
+        AnimalStatus? status
+    )
     {
-        var entities = await animals.GetAllAsync();
+        var entities = await animals.SearchAsync(search, animalType, sex, status);
 
         var model = new AnimalIndexViewModel
         {
-            Items = entities.Select(ToListItem).ToList()
+            Items = entities.Select(ToListItem).ToList(),
+            Search = search,
+            AnimalType = animalType,
+            Sex = sex,
+            Status = status
         };
 
         return View(model);
