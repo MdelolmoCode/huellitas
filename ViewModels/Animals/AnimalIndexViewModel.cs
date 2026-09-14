@@ -14,4 +14,12 @@ public sealed class AnimalIndexViewModel
     public AnimalSex? Sex { get; set; }
 
     public AnimalStatus? Status { get; set; }
+
+    public string? Sort { get; set; }
+
+    public int CurrentPage { get; set; }
+
+    public int TotalPages { get; set; }
+
+    public int TotalCount { get; set; }
 }

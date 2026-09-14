@@ -18,33 +18,26 @@ public class AnimalsController : Controller
         string? search,
         AnimalType? animalType,
         AnimalSex? sex,
-        AnimalStatus? status
-    )
+        AnimalStatus? status,
+        string? sort,
+        int page = 1)
     {
-        var entities = await animals.SearchAsync(search, animalType, sex, status);
-
-        var model = new AnimalIndexViewModel
-        {
-            Items = entities.Select(ToListItem).ToList(),
-            Search = search,
-            AnimalType = animalType,
-            Sex = sex,
-            Status = status
-        };
+        var model = await animals.GetIndexAsync(
+            search, animalType, sex, status, sort, page);
 
         return View(model);
     }
 
     public async Task<IActionResult> Details(int id)
     {
-        var animal = await animals.GetByIdAsync(id);
+        var model = await animals.GetDetailsAsync(id);
 
-        if (animal is null)
+        if (model is null)
         {
             return NotFound();
         }
 
-        return View(ToDetails(animal));
+        return View(model);
     }
 
     [HttpGet]
@@ -69,7 +62,7 @@ public class AnimalsController : Controller
     [HttpGet]
     public async Task<IActionResult> Edit(int id)
     {
-        var animal = await animals.GetByIdAsync(id);
+        var animal = await animals.GetForEditAsync(id);
 
         if (animal is null)
         {
@@ -107,14 +100,14 @@ public class AnimalsController : Controller
     [HttpGet]
     public async Task<IActionResult> Delete(int id)
     {
-        var animal = await animals.GetByIdAsync(id);
+        var model = await animals.GetDetailsAsync(id);
 
-        if (animal is null)
+        if (model is null)
         {
             return NotFound();
         }
 
-        return View(ToDetails(animal));
+        return View(model);
     }
 
     [HttpPost, ActionName("Delete")]
@@ -137,35 +130,5 @@ public class AnimalsController : Controller
         TempData["Success"] = "El animal se ha borrado.";
 
         return RedirectToAction(nameof(Index));
-    }
-
-    private static AnimalListItemViewModel ToListItem(Animal animal)
-    {
-        return new AnimalListItemViewModel
-        {
-            Id = animal.Id,
-            Name = animal.Name,
-            Breed = animal.Breed,
-            ApproximateAge = animal.ApproximateAge,
-            AnimalType = animal.AnimalType,
-            AnimalSex = animal.Sex,
-            AnimalStatus = animal.Status
-        };
-    }
-
-    private static AnimalDetailsViewModel ToDetails(Animal animal)
-    {
-        return new AnimalDetailsViewModel
-        {
-            Id = animal.Id,
-            Name = animal.Name,
-            Breed = animal.Breed,
-            ApproximateAge = animal.ApproximateAge,
-            AnimalType = animal.AnimalType,
-            AnimalSex = animal.Sex,
-            AnimalStatus = animal.Status,
-            Description = animal.Description,
-            EntryDate = animal.EntryDate
-        };
     }
 }

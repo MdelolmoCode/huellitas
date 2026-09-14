@@ -1,11 +1,14 @@
 using Huellitas.Data;
 using Huellitas.Models;
+using Huellitas.ViewModels.Animals;
 using Microsoft.EntityFrameworkCore;
 
 namespace Huellitas.Services;
 
 public sealed class AnimalService
 {
+    private const int PageSize = 6;
+
     private readonly ApplicationDbContext context;
 
     public AnimalService(ApplicationDbContext context)
@@ -13,12 +16,13 @@ public sealed class AnimalService
         this.context = context;
     }
 
-    public async Task<List<Animal>> SearchAsync(
+    public async Task<AnimalIndexViewModel> GetIndexAsync(
         string? search,
         AnimalType? animalType,
         AnimalSex? sex,
-        AnimalStatus? status
-    )
+        AnimalStatus? status,
+        string? sort,
+        int page)
     {
         var query = context.Animals.AsNoTracking();
 
@@ -46,10 +50,49 @@ public sealed class AnimalService
             query = query.Where(animal => animal.Status == statusValue);
         }
 
-        return await query
-            .OrderBy(animal => animal.Name)
+        var totalCount = await query.CountAsync();
+
+        var totalPages = (int)Math.Ceiling(totalCount / (double)PageSize);
+
+        var currentPage = totalPages == 0
+            ? 1
+            : Math.Clamp(page, 1, totalPages);
+
+        var ordered = sort switch
+        {
+            "age" => query.OrderBy(animal => animal.ApproximateAge),
+            "entry" => query.OrderByDescending(animal => animal.EntryDate),
+            _ => query.OrderBy(animal => animal.Name)
+        };
+
+        var items = await ordered
             .ThenBy(animal => animal.Id)
+            .Skip((currentPage - 1) * PageSize)
+            .Take(PageSize)
+            .Select(animal => new AnimalListItemViewModel
+            {
+                Id = animal.Id,
+                Name = animal.Name,
+                Breed = animal.Breed,
+                ApproximateAge = animal.ApproximateAge,
+                AnimalType = animal.AnimalType,
+                AnimalSex = animal.Sex,
+                AnimalStatus = animal.Status
+            })
             .ToListAsync();
+
+        return new AnimalIndexViewModel
+        {
+            Items = items,
+            Search = search,
+            AnimalType = animalType,
+            Sex = sex,
+            Status = status,
+            Sort = sort,
+            CurrentPage = currentPage,
+            TotalPages = totalPages,
+            TotalCount = totalCount
+        };
     }
 
     public async Task<Animal> CreateAsync(Animal animal)
@@ -102,7 +145,7 @@ public sealed class AnimalService
         {
             return OperationResult.Conflict(
                 "Este animal no se puede borrar porque tiene solicitudes de adopción."
-            );
+                );
         }
 
         context.Animals.Remove(animal);
@@ -111,11 +154,30 @@ public sealed class AnimalService
         return OperationResult.Success();
     }
 
-    public async Task<Animal?> GetByIdAsync(int id)
+    public async Task<AnimalDetailsViewModel?> GetDetailsAsync(int id)
     {
         return await context.Animals
             .AsNoTracking()
             .Where(animal => animal.Id == id)
+            .Select(animal => new AnimalDetailsViewModel
+            {
+                Id = animal.Id,
+                Name = animal.Name,
+                Breed = animal.Breed,
+                ApproximateAge = animal.ApproximateAge,
+                AnimalType = animal.AnimalType,
+                AnimalSex = animal.Sex,
+                AnimalStatus = animal.Status,
+                Description = animal.Description,
+                EntryDate = animal.EntryDate
+            })
             .SingleOrDefaultAsync();
+    }
+
+    public async Task<Animal?> GetForEditAsync(int id)
+    {
+        return await context.Animals
+            .AsNoTracking()
+            .SingleOrDefaultAsync(animal => animal.Id == id);
     }
 }
