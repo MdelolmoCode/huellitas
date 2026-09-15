@@ -48,6 +48,7 @@ builder.Services.ConfigureApplicationCookie(options =>
 });
 
 builder.Services.AddScoped<AnimalService>();
+builder.Services.AddScoped<AdoptionRequestService>();
 
 var app = builder.Build();
 

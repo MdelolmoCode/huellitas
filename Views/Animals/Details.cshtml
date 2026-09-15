@@ -33,6 +33,13 @@
             Volver a los animales
         </a>
 
+        @if (User.Identity?.IsAuthenticated == true && Model.AnimalStatus == AnimalStatus.Available)
+        {
+            <a class="btn btn-success"
+               asp-controller="AdoptionRequests" asp-action="Create"
+               asp-route-animalId="@Model.Id">Solicitar adopción</a>
+        }
+
         @if (User.IsInRole(RoleNames.Admin))
         {
             <a class="btn btn-primary" asp-action="Edit" asp-route-id="@Model.Id">Editar</a>
