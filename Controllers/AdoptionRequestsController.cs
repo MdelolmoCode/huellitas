@@ -1,3 +1,4 @@
+using Huellitas.Models;
 using Huellitas.Services;
 using Huellitas.Utilities;
 using Huellitas.ViewModels.AdoptionRequests;
@@ -120,5 +121,68 @@ public class AdoptionRequestsController : Controller
         TempData["Success"] = "Tu solicitud de adopción se ha cancelado.";
 
         return RedirectToAction(nameof(MyRequests));
+    }
+
+    [Authorize(Roles = RoleNames.Admin)]
+    [HttpGet]
+    public async Task<IActionResult> Index()
+    {
+        var model = await adoptionRequests.GetAllAsync();
+
+        return View(model);
+    }
+
+    [Authorize(Roles = RoleNames.Admin)]
+    [HttpGet]
+    public async Task<IActionResult> AdminDetails(int id)
+    {
+        var model = await adoptionRequests.GetDetailsForAdminAsync(id);
+
+        if (model is null)
+        {
+            return NotFound();
+        }
+
+        return View("Details", model);
+    }
+
+    [Authorize(Roles = RoleNames.Admin)]
+    [HttpPost]
+    public async Task<IActionResult> Reject(int id)
+    {
+        var result = await adoptionRequests.RejectAsync(id);
+
+        return ReviewResult(result, id, "La solicitud se ha rechazado.");
+    }
+
+    [Authorize(Roles = RoleNames.Admin)]
+    [HttpPost]
+    public async Task<IActionResult> Approve(int id)
+    {
+        var result = await adoptionRequests.ApproveAsync(id);
+
+        return ReviewResult(result, id, "La solicitud se ha aprobado.");
+    }
+
+    private IActionResult ReviewResult(
+        OperationResult result,
+        int id,
+        string successMessage)
+    {
+        if (result.Status == OperationStatus.NotFound)
+        {
+            return NotFound();
+        }
+
+        if (result.Status == OperationStatus.Conflict)
+        {
+            TempData["Error"] = result.Error;
+
+            return RedirectToAction(nameof(AdminDetails), new { id });
+        }
+
+        TempData["Success"] = successMessage;
+
+        return RedirectToAction(nameof(Index));
     }
 }

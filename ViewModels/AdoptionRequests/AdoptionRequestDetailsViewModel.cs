@@ -21,4 +21,6 @@ public sealed class AdoptionRequestDetailsViewModel
     public AdoptionRequestStatus Status { get; set; }
 
     public bool CanCancel { get; set; }
+
+    public bool CanReview { get; set; }
 }

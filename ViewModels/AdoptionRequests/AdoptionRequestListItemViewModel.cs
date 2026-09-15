@@ -10,6 +10,8 @@ public sealed class AdoptionRequestListItemViewModel
 
     public string AnimalName { get; set; } = string.Empty;
 
+    public string UserDisplayName { get; set; } = string.Empty;
+
     public DateTime SubmittedAt { get; set; }
 
     public AdoptionRequestStatus Status { get; set; }

@@ -1,0 +1,41 @@
+@using System.Globalization
+@model AdoptionRequestIndexViewModel
+@{
+    ViewData["Title"] = "Solicitudes de adopción";
+}
+
+<h1 class="mb-4">Solicitudes de adopción</h1>
+
+@if (Model.Items.Count == 0)
+{
+    <p class="text-muted">Todavía no hay ninguna solicitud de adopción.</p>
+}
+else
+{
+    <table class="table align-middle">
+        <thead>
+            <tr>
+                <th>Animal</th>
+                <th>Solicitante</th>
+                <th>Enviada</th>
+                <th>Estado</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var request in Model.Items)
+            {
+                <tr>
+                    <td>@request.AnimalName</td>
+                    <td>@request.UserDisplayName</td>
+                    <td>@request.SubmittedAt.ToLocalTime().ToString("d 'de' MMMM 'de' yyyy", CultureInfo.GetCultureInfo("es-ES"))</td>
+                    <td>@Html.DisplayFor(modelItem => request.Status)</td>
+                    <td class="text-end">
+                        <a class="btn btn-sm btn-outline-secondary"
+                           asp-action="AdminDetails" asp-route-id="@request.Id">Revisar</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

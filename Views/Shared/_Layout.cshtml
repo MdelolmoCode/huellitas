@@ -42,6 +42,12 @@
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-controller="AdoptionRequests" asp-action="MyRequests">Mis solicitudes</a>
                             </li>
+                            @if (User.IsInRole(RoleNames.Admin))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-controller="AdoptionRequests" asp-action="Index">Solicitudes</a>
+                                </li>
+                            }
                             <li class="nav-item">
                                 <span class="nav-link text-dark">@(currentUser?.DisplayName ?? User.Identity.Name)</span>
                             </li>

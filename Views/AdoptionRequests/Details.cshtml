@@ -9,6 +9,8 @@
 <dl class="row col-md-8">
     <dt class="col-sm-4">Estado</dt>
     <dd class="col-sm-8">@Html.DisplayFor(model => model.Status)</dd>
+    <dt class="col-sm-4">Solicitante</dt>
+    <dd class="col-sm-8">@Model.UserDisplayName</dd>
     <dt class="col-sm-4">Enviada</dt>
     <dd class="col-sm-8">@Model.SubmittedAt.ToLocalTime().ToString("d 'de' MMMM 'de' yyyy, HH:mm", CultureInfo.GetCultureInfo("es-ES"))</dd>
     <dt class="col-sm-4">Otros animales</dt>
@@ -17,7 +19,15 @@
     <dd class="col-sm-8">@Model.Reason</dd>
 </dl>
 
-<a class="btn btn-outline-secondary" asp-action="MyRequests">Volver a mis solicitudes</a>
+@if (User.IsInRole(RoleNames.Admin))
+{
+    <a class="btn btn-outline-secondary" asp-action="Index">Volver a todas las solicitudes</a>
+}
+else
+{
+    <a class="btn btn-outline-secondary" asp-action="MyRequests">Volver a mis solicitudes</a>
+}
+
 <a class="btn btn-outline-secondary"
    asp-controller="Animals" asp-action="Details" asp-route-id="@Model.AnimalId">Ver el animal</a>
 
@@ -25,5 +35,15 @@
 {
     <form asp-action="Cancel" asp-route-id="@Model.Id" method="post" class="d-inline">
         <button type="submit" class="btn btn-danger">Cancelar solicitud</button>
+    </form>
+}
+
+@if (Model.CanReview)
+{
+    <form asp-action="Approve" asp-route-id="@Model.Id" method="post" class="d-inline">
+        <button type="submit" class="btn btn-success">Aprobar</button>
+    </form>
+    <form asp-action="Reject" asp-route-id="@Model.Id" method="post" class="d-inline">
+        <button type="submit" class="btn btn-danger">Rechazar</button>
     </form>
 }

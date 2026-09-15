@@ -73,6 +73,7 @@ public sealed class AdoptionRequestService
                 Id = request.Id,
                 AnimalId = request.AnimalId,
                 AnimalName = request.Animal.Name,
+                UserDisplayName = request.User.DisplayName,
                 SubmittedAt = request.SubmittedAt,
                 Status = request.Status
             })
@@ -121,6 +122,113 @@ public sealed class AdoptionRequestService
         }
 
         request.Status = AdoptionRequestStatus.Cancelled;
+
+        await context.SaveChangesAsync();
+
+        return OperationResult.Success();
+    }
+
+    public async Task<AdoptionRequestIndexViewModel> GetAllAsync()
+    {
+        var items = await context.AdoptionRequests
+            .AsNoTracking()
+            .OrderBy(request => request.Status)
+            .ThenByDescending(request => request.SubmittedAt)
+            .ThenBy(request => request.Id)
+            .Select(request => new AdoptionRequestListItemViewModel
+            {
+                Id = request.Id,
+                AnimalId = request.AnimalId,
+                AnimalName = request.Animal.Name,
+                UserDisplayName = request.User.DisplayName,
+                SubmittedAt = request.SubmittedAt,
+                Status = request.Status
+            })
+            .ToListAsync();
+
+        return new AdoptionRequestIndexViewModel { Items = items };
+    }
+
+    public async Task<AdoptionRequestDetailsViewModel?> GetDetailsForAdminAsync(int id)
+    {
+        return await context.AdoptionRequests
+            .AsNoTracking()
+            .Where(request => request.Id == id)
+            .Select(request => new AdoptionRequestDetailsViewModel
+            {
+                Id = request.Id,
+                AnimalId = request.AnimalId,
+                AnimalName = request.Animal.Name,
+                UserDisplayName = request.User.DisplayName,
+                SubmittedAt = request.SubmittedAt,
+                Reason = request.Reason,
+                HasOtherAnimals = request.HasOtherAnimals,
+                Status = request.Status,
+                CanReview = request.Status == AdoptionRequestStatus.Pending
+            })
+            .SingleOrDefaultAsync();
+    }
+
+    public async Task<OperationResult> RejectAsync(int id)
+    {
+        var request = await context.AdoptionRequests
+            .SingleOrDefaultAsync(request => request.Id == id);
+
+        if (request is null)
+        {
+            return OperationResult.NotFound();
+        }
+
+        if (request.Status != AdoptionRequestStatus.Pending)
+        {
+            return OperationResult.Conflict(
+                "Solo se pueden rechazar las solicitudes pendientes.");
+        }
+
+        request.Status = AdoptionRequestStatus.Rejected;
+
+        await context.SaveChangesAsync();
+
+        return OperationResult.Success();
+    }
+
+    public async Task<OperationResult> ApproveAsync(int id)
+    {
+        var request = await context.AdoptionRequests
+            .Include(request => request.Animal)
+            .SingleOrDefaultAsync(request => request.Id == id);
+
+        if (request is null)
+        {
+            return OperationResult.NotFound();
+        }
+
+        if (request.Status != AdoptionRequestStatus.Pending)
+        {
+            return OperationResult.Conflict(
+                "Solo se pueden aprobar las solicitudes pendientes.");
+        }
+
+        if (request.Animal.Status != AnimalStatus.Available)
+        {
+            return OperationResult.Conflict(
+                "Este animal ya no está disponible para adopción.");
+        }
+
+        var competitors = await context.AdoptionRequests
+            .Where(other =>
+                other.AnimalId == request.AnimalId &&
+                other.Id != request.Id &&
+                other.Status == AdoptionRequestStatus.Pending)
+            .ToListAsync();
+
+        request.Status = AdoptionRequestStatus.Approved;
+        request.Animal.Status = AnimalStatus.Adopted;
+
+        foreach (var competitor in competitors)
+        {
+            competitor.Status = AdoptionRequestStatus.Rejected;
+        }
 
         await context.SaveChangesAsync();
 
