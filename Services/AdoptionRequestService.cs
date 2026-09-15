@@ -60,4 +60,70 @@ public sealed class AdoptionRequestService
 
         return OperationResult.Success();
     }
+
+    public async Task<MyAdoptionRequestsViewModel> GetForUserAsync(string userId)
+    {
+        var items = await context.AdoptionRequests
+            .AsNoTracking()
+            .Where(request => request.UserId == userId)
+            .OrderByDescending(request => request.SubmittedAt)
+            .ThenBy(request => request.Id)
+            .Select(request => new AdoptionRequestListItemViewModel
+            {
+                Id = request.Id,
+                AnimalId = request.AnimalId,
+                AnimalName = request.Animal.Name,
+                SubmittedAt = request.SubmittedAt,
+                Status = request.Status
+            })
+            .ToListAsync();
+
+        return new MyAdoptionRequestsViewModel { Items = items };
+    }
+
+    public async Task<AdoptionRequestDetailsViewModel?> GetDetailsForUserAsync(
+        int id,
+        string userId)
+    {
+        return await context.AdoptionRequests
+            .AsNoTracking()
+            .Where(request => request.Id == id && request.UserId == userId)
+            .Select(request => new AdoptionRequestDetailsViewModel
+            {
+                Id = request.Id,
+                AnimalId = request.AnimalId,
+                AnimalName = request.Animal.Name,
+                UserDisplayName = request.User.DisplayName,
+                SubmittedAt = request.SubmittedAt,
+                Reason = request.Reason,
+                HasOtherAnimals = request.HasOtherAnimals,
+                Status = request.Status,
+                CanCancel = request.Status == AdoptionRequestStatus.Pending
+            })
+            .SingleOrDefaultAsync();
+    }
+
+    public async Task<OperationResult> CancelAsync(int id, string userId)
+    {
+        var request = await context.AdoptionRequests
+            .SingleOrDefaultAsync(request =>
+                request.Id == id && request.UserId == userId);
+
+        if (request is null)
+        {
+            return OperationResult.NotFound();
+        }
+
+        if (request.Status != AdoptionRequestStatus.Pending)
+        {
+            return OperationResult.Conflict(
+                "Solo se pueden cancelar las solicitudes pendientes.");
+        }
+
+        request.Status = AdoptionRequestStatus.Cancelled;
+
+        await context.SaveChangesAsync();
+
+        return OperationResult.Success();
+    }
 }

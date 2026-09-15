@@ -76,4 +76,49 @@ public class AdoptionRequestsController : Controller
 
         return RedirectToAction("Details", "Animals", new { id = animalId });
     }
+
+    [HttpGet]
+    public async Task<IActionResult> MyRequests()
+    {
+        var model = await adoptionRequests.GetForUserAsync(User.GetRequiredUserId());
+
+        return View(model);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Details(int id)
+    {
+        var model = await adoptionRequests.GetDetailsForUserAsync(
+            id, User.GetRequiredUserId());
+
+        if (model is null)
+        {
+            return NotFound();
+        }
+
+        return View(model);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Cancel(int id)
+    {
+        var result = await adoptionRequests.CancelAsync(
+            id, User.GetRequiredUserId());
+
+        if (result.Status == OperationStatus.NotFound)
+        {
+            return NotFound();
+        }
+
+        if (result.Status == OperationStatus.Conflict)
+        {
+            TempData["Error"] = result.Error;
+
+            return RedirectToAction(nameof(Details), new { id });
+        }
+
+        TempData["Success"] = "Tu solicitud de adopción se ha cancelado.";
+
+        return RedirectToAction(nameof(MyRequests));
+    }
 }

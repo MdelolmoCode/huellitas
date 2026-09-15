@@ -1,0 +1,29 @@
+@using System.Globalization
+@model AdoptionRequestDetailsViewModel
+@{
+    ViewData["Title"] = "Solicitud de adopción";
+}
+
+<h1 class="mb-4">Solicitud de @Model.AnimalName</h1>
+
+<dl class="row col-md-8">
+    <dt class="col-sm-4">Estado</dt>
+    <dd class="col-sm-8">@Html.DisplayFor(model => model.Status)</dd>
+    <dt class="col-sm-4">Enviada</dt>
+    <dd class="col-sm-8">@Model.SubmittedAt.ToLocalTime().ToString("d 'de' MMMM 'de' yyyy, HH:mm", CultureInfo.GetCultureInfo("es-ES"))</dd>
+    <dt class="col-sm-4">Otros animales</dt>
+    <dd class="col-sm-8">@(Model.HasOtherAnimals ? "Sí" : "No")</dd>
+    <dt class="col-sm-4">Motivo</dt>
+    <dd class="col-sm-8">@Model.Reason</dd>
+</dl>
+
+<a class="btn btn-outline-secondary" asp-action="MyRequests">Volver a mis solicitudes</a>
+<a class="btn btn-outline-secondary"
+   asp-controller="Animals" asp-action="Details" asp-route-id="@Model.AnimalId">Ver el animal</a>
+
+@if (Model.CanCancel)
+{
+    <form asp-action="Cancel" asp-route-id="@Model.Id" method="post" class="d-inline">
+        <button type="submit" class="btn btn-danger">Cancelar solicitud</button>
+    </form>
+}
